@@ -1,0 +1,101 @@
+.. title: WhatCanIDoForFedora.org SOP
+.. slug: wcidff.org
+.. date: 2017-03-23
+.. taxonomy: Contributors/Infrastructure
+
+============================
+What Can I Do For Fedora SOP
+============================
+
+Contents
+========
+
+1. Contact Information
+2. Introduction
+3. Determine Category
+4. Cron Job
+
+Contact Information
+===================
+
+Owner
+	sysadmin-main
+Contact
+	#fedora-admin, #fedora-noc or admin@fedoraproject.org	
+Location
+	Phoenix DC
+Server(s)
+	.phx2.fedoraproject.org
+Purpose
+	To explain the overall function of this page, where and how it get's it's information.
+
+Introduction
+============
+
+The 'What Can You Do For Fedora' page was the brainchild of Ralph Bean after getting inspiration from 'whatcanidoformozilla.org' created by Josh Matthews, Henri Koivuneva and s few others.
+Ralph wanted to make the whatcanidoforfedora (wcidff) as configurable as possible.  The purpose of this site is to assist, in as user friendly a way as possible, new and prospective community members and help them realize what skills they may posess that can be helpful for the Fedora Project.
+
+============
+Requirements
+============
+
+The site-generator is written in Python, so you will need that installed and working. In addition, mako and PyYAML are needed as well.
+
+You can cover all of these via:
+
+$ sudo yum install python-mako PyYAML python-virtualenv
+
+The script can optionally generate an 'svg' visualizing your question tree. This requires the pygraphviz package which can be installed like:
+$ sudo yum install python-pygraphviz
+
+=========
+Beginning
+=========
+
+Once you've met the requirements above, Clone the repo:
+
+$ git clone https://github.com/fedora-infra/asknot-ng.git
+$ cd asknot-ng
+
+Create a virtualenv into which you can install the module.
+
+$ virtualenv --system-site-packages venv
+$ source venv/bin/activate
+$ python setup.py develop
+
+Run the script with the Fedora configuration::
+
+$ ./asknot-ng.py templates/index.html questions/fedora.yml l10n/fedora/locale --theme fedora
+
+Wrote build/en/index.html
+and open up build/en/index.html in your favorite browser.
+
+============
+Translations
+============
+
+First, setup a virtualenv, install Babel, and build the egg info.
+
+$ virtualenv venv
+$ source venv/bin/activate
+$ pip install Babel
+$ python setup.py develop
+
+Then, extract the translatable strings:
+
+$ python setup.py extract_messages --output-file l10n/fedora/locale/asknot-ng.pot
+
+======================
+Deploying to OpenShift
+======================
+
+This is a very easy way to bring asknot-ng to a production server using OpenShift.
+
+Just create a new application using RHC and set the environment variables to your demands:
+
+rhc app create askorg diy --from-code https://github.com/fedora-infra/asknot-ng#develop
+rhc set-env ASKNOT_THEME=org -a askorg
+rhc set-env ASKNOT_QUESTION_FILE=questions/org.yml -a askorg
+rhc app restart askorg
+
+
